@@ -1,4 +1,6 @@
-const { config } = require("winston");
+
+const jwt = require("jsonwebtoken");
+const config  = require("../config");
 
 
 class LoginService {
@@ -6,6 +8,8 @@ class LoginService {
     this.userModel = userModel;
     this.logger = logger;
   }
+
+ 
 
   async login({username, password}) {
     const userRecord = await this.userModel.findOne({
@@ -18,10 +22,13 @@ class LoginService {
       throw new Error("Authentication failed");
     }
 
-    this.logger.info("Checking password")
+    this.logger.info("Checking password");
+  
+
+
     if(userRecord.password === password){
 
-      this.logger.info("Password correct, proceed and generate JTW")
+      this.logger.info("Password correct, proceed and generate JWT")
       const user= {
         username: userRecord.username,
         role: userRecord.role || "guest"
@@ -46,8 +53,6 @@ class LoginService {
 
 
     }
-
-
 
     generateToken(payload){
       return jwt.sign(payload, config.jwt.secret,{expiresIn: config.jwt.expiresIn});
